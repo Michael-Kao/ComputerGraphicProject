@@ -1,0 +1,30 @@
+﻿  painter.cpp
+D:\ComputerGraphic\repo\Project1\painter.cpp(135,27): warning C4244: '引數': 將 'time_t' 轉換為 'unsigned int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(136,45): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(137,45): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(138,45): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(174,19): warning C4244: '引數': 將 'time_t' 轉換為 'unsigned int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(175,37): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(176,37): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(177,37): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(500,29): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(501,29): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(502,29): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(503,29): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(504,29): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(505,30): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(509,29): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(510,29): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(511,29): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(512,29): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(513,29): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(514,30): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(518,29): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(519,29): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(520,29): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(521,29): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(522,29): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(523,30): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\ComputerGraphic\repo\Project1\painter.cpp(477,26): warning C4101: 'file_m': 未參考的區域變數
+D:\ComputerGraphic\repo\Project1\painter.cpp(558,19): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+  Project1.vcxproj -> D:\ComputerGraphic\repo\Project1\x64\Debug\Project1.exe
