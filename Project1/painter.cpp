@@ -6,7 +6,7 @@ using namespace std;
 // Window's width and height
 int width = 800;
 int height = 600;
-const int MAX = 50; 
+const int MAX = 50;
 int shapeCount = 0;
 int clearCount = 0;
 float point_size = 1.0;
@@ -16,6 +16,9 @@ bool dragging = false;
 bool drawing = false;
 float PI = 3.1416f;
 bool isFilled = true;
+float current_x, current_y;
+vector< string > STR;
+//bool left_click = false;
 
 struct Color
 {
@@ -36,6 +39,7 @@ struct Shape
     bool isFilled = true;
     bool isActivated = false;
     string str = "";
+    vector<string> OnscrSTR;
     string status = "";  // status for clear
     int clr_id; // no. of clearArr
 };
@@ -77,43 +81,43 @@ void StartDrawing(float x, float y)
         shapeList[shapeCount].isActivated = true;
         switch (obj_type)
         {//NONE, POLYGON, CIRCLE, T_POINT, LINE, TRIANGLE, TEXT
-            case POLYGON:
-                shapeList[shapeCount].type = "Polygon";
-                break;
-            case CIRCLE:
-                shapeList[shapeCount].type = "Circle";
-                shapeList[shapeCount].R = radius;
-                shapeList[shapeCount].limit = 1;
-                break;
-            case T_POINT:
-                shapeList[shapeCount].type = "Point";
-                shapeList[shapeCount].limit = 1;
-                break;
-            case LINE:
-                shapeList[shapeCount].type = "Line";
-                shapeList[shapeCount].limit = 2;
-                break;
-            case TRIANGLE:
-                shapeList[shapeCount].type = "Triangle";
-                shapeList[shapeCount].limit = 3;
-                break;
-            case TEXT:
-                shapeList[shapeCount].type = "Text";
-                shapeList[shapeCount].limit = 1;
-                cout << "Type the text here: ";
-                cin >> tmp;
-                shapeList[shapeCount].str = tmp;
-                break;
-            case CONTINUOUS_LINE:
-                shapeList[shapeCount].type = "ContinuousLine";
-                shapeList[shapeCount].limit = 5000;
-                dragging = true;
-                break;
-            case ERASER:
-                shapeList[shapeCount].type = "Eraser";
-                shapeList[shapeCount].limit = 50000;
-                dragging = true;
-                break;
+        case POLYGON:
+            shapeList[shapeCount].type = "Polygon";
+            break;
+        case CIRCLE:
+            shapeList[shapeCount].type = "Circle";
+            shapeList[shapeCount].R = radius;
+            shapeList[shapeCount].limit = 1;
+            break;
+        case T_POINT:
+            shapeList[shapeCount].type = "Point";
+            shapeList[shapeCount].limit = 1;
+            break;
+        case LINE:
+            shapeList[shapeCount].type = "Line";
+            shapeList[shapeCount].limit = 2;
+            break;
+        case TRIANGLE:
+            shapeList[shapeCount].type = "Triangle";
+            shapeList[shapeCount].limit = 3;
+            break;
+        case TEXT:
+            shapeList[shapeCount].type = "Text";
+            shapeList[shapeCount].limit = 1;
+            cout << "Type the text here: ";
+            cin >> tmp;
+            shapeList[shapeCount].str = tmp;
+            break;
+        case CONTINUOUS_LINE:
+            shapeList[shapeCount].type = "ContinuousLine";
+            shapeList[shapeCount].limit = 5000;
+            dragging = true;
+            break;
+        case ERASER:
+            shapeList[shapeCount].type = "Eraser";
+            shapeList[shapeCount].limit = 50000;
+            dragging = true;
+            break;
         }
         //cout << "your obj_type = " << obj_type << "\n";
         //cout << "Count = " << shapeCount << endl;
@@ -168,7 +172,7 @@ void ContDrawing(float x, float y)
         return;
     if (!shapeList[shapeCount].limit) // vertex is full
         return;
-    if (color_type == COLORFUL)
+    if (color_type == COLORFUL && obj_type != ERASER)
     {
         Color tmp_color;
         srand(time(NULL));
@@ -196,7 +200,33 @@ void ContDrawing(float x, float y)
     shapeList[shapeCount].limit--;
     if (obj_type == LINE || obj_type == TRIANGLE)
         cout << "The number of the rest = " << shapeList[shapeCount].limit << endl;
-    glutPostRedisplay();
+    int triangleAmount = 500;//要用多少三角形畫出圓
+    float twicePI = 2 * PI;
+
+    if (obj_type == ERASER)
+    {
+        glColor3f(0.0, 0.0, 0.0);
+    }
+    else
+    {
+        glColor3f(color_value.r, color_value.g, color_value.b);
+    }
+    /*glBegin(GL_POINTS);
+    glVertex2f(x, y);
+    glEnd();
+
+    glColor3f(color_value.r, color_value.g, color_value.b);*/
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(x, y);
+    for (int i = 0; i < triangleAmount; i++)
+    {
+        glVertex2f(x + (line_width * cos(i * twicePI / triangleAmount)),
+            y + (line_width * sin(i * twicePI / triangleAmount)));
+    }
+    glEnd();
+    glFlush();
+    
+    //glutPostRedisplay();
 }
 
 // Finish Drawing
@@ -220,68 +250,68 @@ void objMenu(int value)
 {
     switch (value)
     {
-        case NONE:
-            obj_type = NONE;
-            break;
-        case POLYGON:
-            obj_type = POLYGON;
-            break;
-        case CIRCLE:
-            obj_type = CIRCLE;
-            break;
-        case T_POINT:
-            obj_type = T_POINT;
-            break;
-        case LINE:
-            obj_type = LINE;
-            break;
-        case TRIANGLE:
-            obj_type = TRIANGLE;
-            break;
-        case TEXT:
-            obj_type = TEXT;
-            break;
-        case CONTINUOUS_LINE:
-            obj_type = CONTINUOUS_LINE;
-            break;
-        case ERASER:
-            obj_type = ERASER;
+    case NONE:
+        obj_type = NONE;
+        break;
+    case POLYGON:
+        obj_type = POLYGON;
+        break;
+    case CIRCLE:
+        obj_type = CIRCLE;
+        break;
+    case T_POINT:
+        obj_type = T_POINT;
+        break;
+    case LINE:
+        obj_type = LINE;
+        break;
+    case TRIANGLE:
+        obj_type = TRIANGLE;
+        break;
+    case TEXT:
+        obj_type = TEXT;
+        break;
+    case CONTINUOUS_LINE:
+        obj_type = CONTINUOUS_LINE;
+        break;
+    case ERASER:
+        obj_type = ERASER;
     }
 }
 
 // Color menu
 void colorMenu(int value)
 {
-    switch(value)
+    switch (value)
     {
-        case WHITE:
-            color_type = WHITE;
-            color_value.r = 1.0f;
-            color_value.g = 1.0f;
-            color_value.b = 1.0f;
-            break;
-        case RED:
-            color_type = RED;
-            color_value.r = 1.0f;
-            color_value.g = 0.0f;
-            color_value.b = 0.0f;
-            break;
-        case GREEN:
-            color_type = GREEN;
-            color_value.r = 0.0f;
-            color_value.g = 1.0f;
-            color_value.b = 0.0f;
-            break;
-        case BLUE:
-            color_type = BLUE;
-            color_value.r = 0.0f;
-            color_value.g = 0.0f;
-            color_value.b = 1.0f;
-            break;
-        case COLORFUL:
-            color_type = COLORFUL;
-            break;
-        
+    case WHITE:
+        color_type = WHITE;
+        color_value.r = 1.0f;
+        color_value.g = 1.0f;
+        color_value.b = 1.0f;
+        break;
+    case RED:
+        color_type = RED;
+        color_value.r = 1.0f;
+        color_value.g = 0.0f;
+        color_value.b = 0.0f;
+        break;
+    case GREEN:
+        color_type = GREEN;
+        color_value.r = 0.0f;
+        color_value.g = 1.0f;
+        color_value.b = 0.0f;
+        break;
+    case BLUE:
+        color_type = BLUE;
+        color_value.r = 0.0f;
+        color_value.g = 0.0f;
+        color_value.b = 1.0f;
+        break;
+    case COLORFUL:
+        color_type = COLORFUL;
+        break;
+
     }
     glColor3f(color_value.r, color_value.g, color_value.b);
 }
@@ -389,19 +419,19 @@ void Undo()
 // Right-click menu
 void rightClickMenu(int value)
 {
-    switch(value)
+    switch (value)
     {
-        case CLEAR:
-            ClearAttri();
-            break;
-        case REDO:
-            Redo();
-            break;
-        case UNDO:
-            Undo();
-            break;
-        case EXIT:
-            exit(0);
+    case CLEAR:
+        ClearAttri();
+        break;
+    case REDO:
+        Redo();
+        break;
+    case UNDO:
+        Undo();
+        break;
+    case EXIT:
+        exit(0);
     }
 }
 
@@ -429,7 +459,7 @@ void radiusMenu(int r)
         radius = 5.0;
     else if (r == 6.0)
         radius += 1.0;
-        
+
     cout << "Radius = " << radius << endl;
 }
 
@@ -448,7 +478,7 @@ void lineWidthMenu(int width)
         line_width = 5.0;
     else if (width == 6.0)
         line_width += 1.0;
-        
+
     cout << "Line width = " << line_width << endl;
 }
 
@@ -467,14 +497,14 @@ void pointSizeMenu(int size)
         point_size = 5.0;
     else if (size == 6.0)
         point_size += 1.0;
-        
+
     cout << "Point size = " << point_size << endl;
 }
 
 // Create right-click menu
 void createMenu()
 {
-    int color_m, type_m, file_m, type_p, type_l, type_r, type_f;
+    int color_m, type_m, type_p, type_l, type_r, type_f;
     //create color sub-menu
     color_m = glutCreateMenu(colorMenu);
     glutAddMenuEntry("White", WHITE);
@@ -547,6 +577,23 @@ void processNormalKeys(unsigned char key, int x, int y)
 {
     if (key == 'q' || key == 'Q')
         exit(0);
+    /*if (key == 13)
+    {
+        // enter key
+        STR.push_back("");
+    }
+    else if (key == 8)
+    {
+        // backspace
+        STR.back().pop_back();
+    }
+    else
+    {
+        // regular text
+        STR.back().push_back(key);
+    }
+
+    glutPostRedisplay();*/
 }
 
 //draw circle
@@ -558,8 +605,8 @@ void DrawCircle(struct Shape Cir)
     float twicePI = 2.0 * PI;
     if (Cir.isFilled)
     {
-        int triangleAmount = 50;//要用多少三角形畫出圓
-        
+        int triangleAmount = 500;//要用多少三角形畫出圓
+
         glColor3f(Cir.pnt[0].second.second.r, Cir.pnt[0].second.second.g, Cir.pnt[0].second.second.b);
         glBegin(GL_TRIANGLE_FAN);
         glVertex2f(x, y);
@@ -572,8 +619,8 @@ void DrawCircle(struct Shape Cir)
     }
     else
     {
-        int lineAmount = 150;//要用多少線來畫圓
-        
+        int lineAmount = 1500;//要用多少線來畫圓
+
         glColor3f(Cir.pnt[0].second.second.r, Cir.pnt[0].second.second.g, Cir.pnt[0].second.second.b);
         glLineWidth(1.0);
         glBegin(GL_LINE_LOOP);
@@ -584,8 +631,27 @@ void DrawCircle(struct Shape Cir)
         }
         glEnd();
     }
-    glutPostRedisplay();
+    //glFlush();
+    //glutPostRedisplay();
 }
+
+//draw string 2
+/*void DrawSTR(float x, float y, vector<string> STR)
+{
+    for (size_t i = 0; i < STR.size(); ++i)
+    {
+        ostringstream oss;
+        oss << (i + 1) << ": " << STR[i];
+
+        void* font = GLUT_BITMAP_9_BY_15;
+        glRasterPos2i(x, y);
+        for (int i = 0; i < STR.size(); i++)
+        {
+            
+            glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)(oss.str().c_str()));
+        }
+    }   
+}*/
 
 //draw string
 void DrawString(struct Shape Str)
@@ -596,6 +662,7 @@ void DrawString(struct Shape Str)
     {
         glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, Str.str[i]);
     }
+    //glFlush();
     //glutPostRedisplay();
 }
 
@@ -624,7 +691,8 @@ void DrawPolygon(struct Shape pol)
         glEnd();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
-    glutPostRedisplay();
+    //glFlush();
+    //glutPostRedisplay();
 }
 
 //Draw Point
@@ -635,7 +703,8 @@ void DrawPoint(struct Shape P)
     glBegin(GL_POINTS);
     glVertex2f(P.pnt[0].first, P.pnt[0].second.first);
     glEnd();
-    glutPostRedisplay();
+    //glFlush();
+    //glutPostRedisplay();
 }
 
 //Draw Triangle
@@ -664,7 +733,8 @@ void DrawTriangle(struct Shape Tri)
         glEnd();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
-    glutPostRedisplay();
+    //glFlush();
+    //glutPostRedisplay();
 }
 
 //Draw Line
@@ -676,7 +746,8 @@ void DrawLine(struct Shape L)
     glVertex2f(L.pnt[0].first, L.pnt[0].second.first);
     glVertex2f(L.pnt[1].first, L.pnt[1].second.first);
     glEnd();
-    glutPostRedisplay();
+    //glFlush();
+    //glutPostRedisplay();
 }
 
 //Draw Continuous line
@@ -691,7 +762,7 @@ void DrawContLine(struct Shape CL)
         glVertex2f(iter.first, iter.second.first);
     }
     glEnd();
-    glutPostRedisplay();
+    //glFlush();
 }
 
 // draw main func
@@ -733,8 +804,10 @@ void Draw()
             {
                 DrawContLine(shapeList[i]);
             }
+            //glFlush();
         }
     }
+    //glFlush();
     //glutPostRedisplay();
 }
 
@@ -745,7 +818,7 @@ void init()
     glColor3f(1.0f, 1.0f, 1.0f);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluOrtho2D(0, (double) width, 0, (double) height);
+    gluOrtho2D(0, (double)width, 0, (double)height);
 }
 
 void display_func(void)
@@ -754,6 +827,7 @@ void display_func(void)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear color buffer
     glViewport(0, 0, width, height);
     Draw();
+    //glFlush();
 }
 
 //reshape func
@@ -775,14 +849,16 @@ void mouse_func(int button, int state, int x, int y)
     if (button != GLUT_LEFT_BUTTON)/* || state != GLUT_DOWN*/
         return;
 
+    float wx, wy;
+    wx = (float)x;
+    wy = (float)(height - y);
+    current_x = wx;
+    current_y = wy;
     if (obj_type == CONTINUOUS_LINE || obj_type == ERASER)
     {
-//        cout << "Not ready\n";
+        //        cout << "Not ready\n";
         if (state == GLUT_DOWN)
         {
-            float wx, wy;
-            wx = (float)x;
-            wy = (float)(height - y);
 
             if (shapeList[shapeCount].pnt.empty())
             {
@@ -791,9 +867,6 @@ void mouse_func(int button, int state, int x, int y)
         }
         else
         {
-            float wx, wy;
-            wx = (float)x;
-            wy = (float)(height - y);
             dragging = false;
             shapeList[shapeCount].limit = 0;
             FinishDrawing(wx, wy);
@@ -803,9 +876,6 @@ void mouse_func(int button, int state, int x, int y)
     {
         if (state != GLUT_DOWN)
             return;
-        float wx, wy;
-        wx = (float)x;
-        wy = (float)(height - y);
 
         if (shapeList[shapeCount].pnt.empty())
         {
@@ -836,7 +906,45 @@ void motion(int x, int y)
     ContDrawing(wx, wy);
 }
 
-int main(int argc, char **argv)
+void passiveMotion(int x, int y)
+{
+    float wx, wy;
+    wx = (float)x;
+    wy = (float)(height - y);
+    if (drawing)
+    {
+        if (!dragging)
+        {
+            glLineWidth(line_width);
+            glColor3f(color_value.r, color_value.g, color_value.b);
+            glBegin(GL_LINES);
+            glVertex2f(current_x, current_y);
+            glVertex2f(wx, wy);
+            glEnd();
+            glFlush();
+            glutPostRedisplay();
+        }
+    }
+    else
+    {
+        int triangleAmount = 500;//要用多少三角形畫出圓
+        float twicePI = 2 * PI;
+
+        glColor3f(color_value.r, color_value.g, color_value.b);
+        glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(wx, wy);
+        for (int i = 0; i < triangleAmount; i++)
+        {
+            glVertex2f(wx + (radius * cos(i * twicePI / triangleAmount)),
+                wy + (radius * sin(i * twicePI / triangleAmount)));
+        }
+        glEnd();
+        glFlush();
+        glutPostRedisplay();
+    }
+}
+
+int main(int argc, char** argv)
 {
     glutInit(&argc, argv);
     glutInitWindowPosition(0, 0);
@@ -846,14 +954,15 @@ int main(int argc, char **argv)
     createMenu();
     init();
     // TODO:
-    
+
     glutDisplayFunc(display_func);// register callbacks
-    
-    glutReshapeFunc(changeSize);  
+    //glutIdleFunc(idlefunc);
+    glutReshapeFunc(changeSize);
     glutKeyboardFunc(processNormalKeys);
     glutMouseFunc(mouse_func);
     glutMotionFunc(motion);
-    
+    glutPassiveMotionFunc(passiveMotion);
+
     glutMainLoop();
     return 1;
 }
