@@ -10,7 +10,7 @@
 using namespace std;
 
 enum MODE {
-    STOP, WALK, RUN, L_TURN, R_TURN, JUMP
+    STOP, WALK, JUMP
 };
 
 MODE mode = STOP;
@@ -40,7 +40,8 @@ double Pi = 3.1415926;
 float view_x = 1.0, view_y = 1.0, view_z = 1.0;
 float test_x = 0.0, test_y = 0.0, test_z = 0.0;
 int ang_x = 0, ang_y = 0, ang_z = 0, r_x = 0, r_y = 0, r_z = 0, Lfa_ang = 0, Rfa_ang = 0, La_ang = 0, Ra_ang = 0, r_calf = 0, l_calf = 0, r_leg = 0, l_leg = 0, angle_speed = 1, counter = 0, turn_ang = 0;
-bool D = false, one_side_move = false, jump = false, stop = true, crouch = false;
+bool D = false, one_side_move = false, jump = false, stop = true, crouch = false, run = false;
+float run_speed = 1.0;
 float crouch_down = 0.0, calf_down = 0.0, leg_down = 0.0; //no use
 int jump_s = 0;
 
@@ -155,6 +156,9 @@ void draw_robo()
     glPushMatrix(); //(0, 5, 0)
     glTranslatef(0.0, 5.0, 0.0);
     glRotatef(-90, 1.0, 0.0, 0.0);  //把z軸座標轉到-y方向
+    if (run) {
+        glRotatef(10, 1.0, 0.0, 0.0);
+    }
 
     glColor3f(0.0, 1.0, 0.0);    /* Gray colored */
     if (cylind == NULL) {               /* allocate a quadric object, if necessary */
@@ -173,6 +177,10 @@ void draw_robo()
     glPushMatrix();
     glTranslatef(-2.0, 5.0, 0.0);
     glRotatef(90, 1.0, 0.0, 0.0);
+    if (run) {
+        glTranslatef(0.0, 0.0, 1.0);
+        glRotatef(-30, 1.0, 0.0, 0.0);
+    }
     glRotatef(r_leg, 1.0, 0.0, 0.0);
     glColor3f(1.0, 1.0, 0.0); //Yello color
     gluCylinder(cylind, 1.5, 1.5, 2.5, 12, 3);
@@ -194,6 +202,9 @@ void draw_robo()
     //draw calf
     glPushMatrix();
     glTranslatef(0.0, 0.0, 1.0);
+    if (run) {
+        glRotatef(30, 1.0, 0.0, 0.0);
+    }
     glColor3f(0.0, 0.0, 1.0); //Blue color 
     gluCylinder(cylind, 1.5, 1.5, 6.0, 12, 3);
     glPopMatrix();
@@ -203,6 +214,10 @@ void draw_robo()
     glPushMatrix();
     glTranslatef(2.0, 5.0, 0.0);
     glRotatef(90, 1.0, 0.0, 0.0);
+    if (run) {
+        glTranslatef(0.0, 0.0, 1.0);
+        glRotatef(-30, 1.0, 0.0, 0.0);
+    }
     glRotatef(l_leg, 1.0, 0.0, 0.0);
     glColor3f(2.0, 1.0, 0.0); //Yello color
     gluCylinder(cylind, 1.5, 1.5, 2.5, 12, 3);
@@ -220,6 +235,9 @@ void draw_robo()
     //draw calf
     glPushMatrix();
     glTranslatef(0.0, 0.0, 1.0);
+    if (run) {
+        glRotatef(30, 1.0, 0.0, 0.0);
+    }
     glColor3f(0.0, 0.0, 1.0); //Blue color 
     gluCylinder(cylind, 1.5, 1.5, 6.0, 12, 3);
     glPopMatrix();
@@ -229,14 +247,29 @@ void draw_robo()
     glPushMatrix();
     glTranslatef(0.0, 13.0, 0.0);
 
+    if (run) {
+        glTranslatef(0.0, 0.0, 1.0);
+        glRotatef(10, 1.0, 0.0, 0.0);
+    }
 
     glColor3f(1.0, 1.0, 1.0);
     glutSolidCube(6);
+
+    glTranslatef(-1.5, 0.0, 3.0);
+    glColor3f(0.0, 0.0, 0.0);
+    glutSolidSphere(1.0, 6, 6);
+    
+    glTranslatef(3.0, 0.0, 0.0);
+    glutSolidSphere(1.0, 6, 6);
+
     glPopMatrix();
     
     //draw left shoulder
     glPushMatrix();
     glTranslatef(4.9, 10.0, 0.0);
+    if (run) {
+        glRotatef(10, 1.0, 0.0, 0.0);
+    }
     glColor3f(0.32, 0.32, 0.32);
     glutSolidCube(3);
 
@@ -261,6 +294,10 @@ void draw_robo()
     //draw left forearm
     glPushMatrix();
     glTranslatef(-0.6, -0.4, 0.125);
+    if (run) {
+        glTranslatef(0.0, 0.0, 0.375);
+        glRotatef(-60, 1.0, 0.0, 0.0);
+    }
     draw_ret();
     glPopMatrix();
     glPopMatrix();
@@ -269,6 +306,9 @@ void draw_robo()
     //draw right shoulder
     glPushMatrix();
     glTranslatef(-4.9, 10.0, 0.0);
+    if (run) {
+        glRotatef(10, 1.0, 0.0, 0.0);
+    }
     glColor3f(0.32, 0.32, 0.32);
     glutSolidCube(3);
 
@@ -296,6 +336,10 @@ void draw_robo()
     //draw right forearm
     glPushMatrix();
     glTranslatef(-0.5, -0.4, 0.125);
+    if (run) {
+        glTranslatef(0.0, 0.0, 0.375);
+        glRotatef(-60, 1.0, 0.0, 0.0);
+    }
     draw_ret();
     glPopMatrix();
     glPopMatrix();
@@ -335,7 +379,7 @@ void display()
     glRotatef(-90, 1.0, 0.0, 0.0);
     glScalef(10.0, 6.0, 6.0);
     glColor3f(0.0, 1.0, 0.0);
-    draw_ret();//x = -7 ~ 8 y = 0 ~ 15 z = 34 ~ 43
+    draw_ret();
     glPopMatrix();
 
     glTranslatef(test_x, test_y, test_z);
@@ -398,6 +442,12 @@ void my_keyboard(unsigned char key, int x, int y)
     }
     if (key == 'w') mode = WALK;
     if (key == 's') mode = STOP;
+    if (key == 'r') {
+        run = true;
+        if (run_speed < 3.0) {
+            run_speed += 0.4;
+        }
+    }
     if (key == 'd' || key == 'D')
     {
         D = (D == true) ? false : true;
@@ -405,10 +455,22 @@ void my_keyboard(unsigned char key, int x, int y)
     }
     if (D)
     {
-        if (key == 'q') La_ang = (La_ang - 1) % 180;
-        if (key == 'e') Ra_ang = (Ra_ang - 1) % 180;
-        if (key == 'z') Lfa_ang = (Lfa_ang - 1) % 180;
-        if (key == 'c') Rfa_ang = (Rfa_ang - 1) % 180;
+        if (key == 'q') {
+            if ((La_ang - 1) < -180) return;
+            La_ang = (La_ang - 1) % 360;
+        }
+        if (key == 'e') {
+            if ((Ra_ang - 1) < -180)  return;
+            Ra_ang = (Ra_ang - 1) % 360;
+        }
+        if (key == 'z') {
+            if ((Lfa_ang - 1) < -120)   return;
+            Lfa_ang = (Lfa_ang - 1) % 360;
+        }
+        if (key == 'c') {
+            if ((Rfa_ang - 1) < -120) return;
+            Rfa_ang = (Rfa_ang - 1) % 360;
+        }
         if (key == '1') test_x -= 0.1;
         if (key == '2') test_y -= 0.1;
         if (key == '3') test_z -= 0.1;
@@ -421,10 +483,22 @@ void my_keyboard(unsigned char key, int x, int y)
     }
     else
     {
-        if (key == 'q') La_ang = (La_ang + 1) % 180;
-        if (key == 'e') Ra_ang = (Ra_ang + 1) % 180;
-        if (key == 'z') Lfa_ang = (Lfa_ang + 1) % 180;
-        if (key == 'c') Rfa_ang = (Rfa_ang + 1) % 180;
+        if (key == 'q') {
+            if ((La_ang + 1) > 30)  return;
+            La_ang = (La_ang + 1) % 360;
+        }
+        if (key == 'e') {
+            if ((Ra_ang + 1) > 30)  return;
+            Ra_ang = (Ra_ang + 1) % 360;
+        }
+        if (key == 'z') {
+            if ((Lfa_ang + 1) > 0) return;
+            Lfa_ang = (Lfa_ang + 1) % 360;
+        }
+        if (key == 'c') {
+            if ((Rfa_ang + 1) > 0) return;
+            Rfa_ang = (Rfa_ang + 1) % 360;
+        }
         if (key == '1') test_x += 0.1;
         if (key == '2') test_y += 0.1;
         if (key == '3') test_z += 0.1;
@@ -444,72 +518,91 @@ void my_keyboard(unsigned char key, int x, int y)
 //Check boundary condition
 bool CheckBoundary() {
     cout << "(" << test_x << "," << test_y << "," << test_z << ")\n";
-    if (crouch) {
-        if (turn_ang == 0) {
-            if (test_z + 0.3 > 23.4 && (test_x >= -8.6 && test_x <= 13.6))  return false;
-        }
-        if (turn_ang == 90 || turn_ang == -270) {
-            if (test_x + 0.3 > -8.6 && (test_z >= 23.4 && test_z <= 39.6))   return false;
-        }
-        if (turn_ang == 180 || turn_ang == -180) {
-            if (test_z - 0.3 < 39.6 && (test_x >= -8.6 && test_x <= 13.6)) return false;
-        }
-        if (turn_ang == -90 || turn_ang == 270) {
-            if (test_x - 0.3 < 13.6 && (test_z >= 23.4 && test_z <= 39.6)) return false;
-        }
-        return true;
+    float distance = 0.0;
+    if (!crouch && !run) {
+        distance = 0.6;
     }
-    else {
-        if (turn_ang == 0) {
-            if (test_z + 0.6 > 23.4 && (test_x >= -8.6 && test_x <= 13.6))  return false;
-        }
-        if (turn_ang == 90 || turn_ang == -270) {
-            if (test_x + 0.6 > -8.6 && (test_z >= 23.4 && test_z <= 39.6))   return false;
-        }
-        if (turn_ang == 180 || turn_ang == -180) {
-            if (test_z - 0.6 < 39.6 && (test_x >= -8.6 && test_x <= 13.6)) return false;
-        }
-        if (turn_ang == -90 || turn_ang == 270) {
-            if (test_x - 0.6 < 13.6 && (test_z >= 23.4 && test_z <= 39.6)) return false;
-        }
-        return true;
+    if (crouch && !run) {
+        distance = 0.3;
     }
+    if (!crouch && run) {
+        distance = 0.6 * run_speed;
+    }
+
+    if (turn_ang == 0) {
+        if ((test_z + distance > 23.4 && test_z < 39.6) && (test_x >= -8.6 && test_x <= 13.6))  return false;
+    }
+    if (turn_ang == 90 || turn_ang == -270) {
+        if ((test_x + distance > -8.6 && test_x < 13.6) && (test_z >= 23.4 && test_z <= 39.6))   return false;
+    }
+    if (turn_ang == 180 || turn_ang == -180) {
+        if ((test_z - distance < 39.6 && test_z > 23.4) && (test_x >= -8.6 && test_x <= 13.6)) return false;
+    }
+    if (turn_ang == -90 || turn_ang == 270) {
+        if ((test_x - distance < 13.6 && test_x > -8.6) && (test_z >= 23.4 && test_z <= 39.6)) return false;
+    }
+
+    return true;
+}
+
+//stop func
+void Stop() {
+    if (counter % angle_speed == 0 && !crouch) {
+        if (La_ang < 0) {
+            La_ang += 1;
+        }
+        if (r_leg < 0 && La_ang % 2 == 0) {
+            r_leg += 1;
+        }
+        if (Ra_ang < 0) {
+            Ra_ang += 1;
+        }
+        if (l_leg < 0 && Ra_ang % 2 == 0) {
+            l_leg += 1;
+        }
+    }
+    else if (counter % angle_speed == 0 && crouch) {
+        if (r_calf < 90) {
+            r_calf++;
+        }
+        if (l_calf < 90) {
+            l_calf++;
+        }
+    }
+    counter--;
+    if (counter == 0)    stop = true;
+}
+
+//moveforward func
+void Move() {
+    float distance = 0.0;
+    if (!crouch && !run) {
+        distance = 0.6;
+    }
+    if (crouch && !run) {
+        distance = 0.3;
+    }
+    if (!crouch && run) {
+        distance = 0.6 * run_speed;
+    }
+    if (turn_ang == 0 && CheckBoundary())   test_z += distance;
+    if ((turn_ang == 90 || turn_ang == -270) && CheckBoundary())  test_x += distance;
+    if ((turn_ang == 180 || turn_ang == -180) && CheckBoundary())  test_z -= distance;
+    if ((turn_ang == -90 || turn_ang == 270) && CheckBoundary())  test_x -= distance;
 }
 
 void movement()
 {
     if (mode == STOP) {
         if (!stop) {
-            if (counter % angle_speed == 0 && !crouch) {
-                if (La_ang < 0) {
-                    La_ang += 1;
-                }
-                if (r_leg < 0 && La_ang % 2 == 0) {
-                    r_leg += 1;
-                }
-                if (Ra_ang < 0) {
-                    Ra_ang += 1;
-                }
-                if (l_leg < 0 && Ra_ang % 2 == 0) {
-                    l_leg += 1;
-                }
-            }
-            else if (counter % angle_speed == 0 && crouch) {
-                if (r_calf < 90) {
-                    r_calf++;
-                }
-                if (l_calf < 90) {
-                    l_calf++;
-                }
-            }
-            counter--;
-            if (counter == 0)    stop = true;
+            run = false;
+            Stop();
         }
     }
     else if (mode == WALK) {
         counter++;
         stop = false;
-        if (counter % angle_speed == 0 && !crouch) {
+        if ((counter % angle_speed == 0 && !crouch) && !run) {
             if (one_side_move) {
                 if (Ra_ang > -30) {
                     Ra_ang -= 1;
@@ -524,10 +617,7 @@ void movement()
                     r_leg += 1;
                 }
                 if (Ra_ang == -30 && l_leg == -15) {
-                    if (turn_ang == 0 && CheckBoundary())   test_z += 0.6;
-                    if ((turn_ang == 90 || turn_ang == -270) && CheckBoundary())  test_x += 0.6;
-                    if ((turn_ang == 180 || turn_ang == -180) && CheckBoundary())  test_z -= 0.6;
-                    if ((turn_ang == -90 || turn_ang == 270) && CheckBoundary())  test_x -= 0.6;
+                    Move();
                     one_side_move = false;
                 }
             }
@@ -545,15 +635,12 @@ void movement()
                     l_leg += 1;
                 }
                 if (La_ang == -30 && r_leg == -15) {
-                    if (turn_ang == 0 && CheckBoundary())   test_z += 0.6;
-                    if ((turn_ang == 90 || turn_ang == -270) && CheckBoundary())  test_x += 0.6;
-                    if ((turn_ang == 180 || turn_ang == -180) && CheckBoundary())  test_z -= 0.6;
-                    if ((turn_ang == -90 || turn_ang == 270) && CheckBoundary())  test_x -= 0.6;
+                    Move();
                     one_side_move = true;
                 }
             }
         }
-        else if (counter % angle_speed == 0 && crouch) {
+        else if ((counter % angle_speed == 0 && crouch) && !run) {
             if (one_side_move) {
                 if (l_calf > 45) {
                     l_calf -= 1;
@@ -568,10 +655,7 @@ void movement()
                     Ra_ang -= 1;
                 }
                 if (l_calf == 45) {
-                    if (turn_ang == 0 && CheckBoundary())   test_z += 0.3;
-                    if ((turn_ang == 90 || turn_ang == -270) && CheckBoundary())  test_x += 0.3;
-                    if ((turn_ang == 180 || turn_ang == -180) && CheckBoundary())  test_z -= 0.3;
-                    if ((turn_ang == -90 || turn_ang == 270) && CheckBoundary())  test_x -= 0.3;
+                    Move();
                     one_side_move = false;
                 }
             }
@@ -589,10 +673,45 @@ void movement()
                     La_ang -= 1;
                 }
                 if (r_calf == 45) {
-                    if (turn_ang == 0 && CheckBoundary())   test_z += 0.3;
-                    if ((turn_ang == 90 || turn_ang == -270) && CheckBoundary())  test_x += 0.3;
-                    if ((turn_ang == 180 || turn_ang == -180) && CheckBoundary())  test_z -= 0.3;
-                    if ((turn_ang == -90 || turn_ang == 270) && CheckBoundary())  test_x -= 0.3;
+                    Move();
+                    one_side_move = true;
+                }
+            }
+        }
+        else if (counter % angle_speed == 0 && run) {
+            if (one_side_move) {
+                if (Ra_ang > -30) {
+                    Ra_ang -= 1;
+                }
+                if (La_ang < 15) {
+                    La_ang += 1;
+                }
+                if (l_leg > -15) {
+                    l_leg -= 1;
+                }
+                if (r_leg < 15) {
+                    r_leg += 1;
+                }
+                if (Ra_ang == -30 && l_leg == -15) {
+                    Move();
+                    one_side_move = false;
+                }
+            }
+            else {
+                if (La_ang > -30) {
+                    La_ang -= 1;
+                }
+                if (Ra_ang < 15) {
+                    Ra_ang += 1;
+                }
+                if (r_leg > -15) {
+                    r_leg -= 1;
+                }
+                if (l_leg < 15) {
+                    l_leg += 1;
+                }
+                if (La_ang == -30 && r_leg == -15) {
+                    Move();
                     one_side_move = true;
                 }
             }
@@ -684,7 +803,7 @@ void main(int argc, char** argv)
     /*-----Depth buffer is used, be careful !!!----*/
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(width, height);
-    glutCreateWindow("windmill");
+    glutCreateWindow("robot");
 
     myinit();      /*---Initialize other state varibales----*/
 
