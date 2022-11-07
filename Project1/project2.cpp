@@ -10,9 +10,14 @@
 using namespace std;
 
 enum MODE {
-    STOP, WALK, JUMP
+    STOP, WALK, JUMP, GESTURE
 };
 
+enum WEAPON {
+    NONE, SWORD, LANCE
+};
+
+WEAPON weapon = NONE;
 MODE mode = STOP;
 
 /*-----Define a unit box--------*/
@@ -39,11 +44,14 @@ float  arm_ang = 45.0, bld_ang = 10.0;
 double Pi = 3.1415926;
 float view_x = 1.0, view_y = 1.0, view_z = 1.0;
 float test_x = 0.0, test_y = 0.0, test_z = 0.0;
-int ang_x = 0, ang_y = 0, ang_z = 0, r_x = 0, r_y = 0, r_z = 0, Lfa_ang = 0, Rfa_ang = 0, La_ang = 0, Ra_ang = 0, r_calf = 0, l_calf = 0, r_leg = 0, l_leg = 0, angle_speed = 1, counter = 0, turn_ang = 0;
-bool D = false, one_side_move = false, jump = false, stop = true, crouch = false, run = false;
+int ges_fore = 0, gesture = 0, spin = 0, ang_x = 0, ang_y = 0, ang_z = 0, r_x = 0, r_y = 0, r_z = 0, Lfa_ang = 0, Rfa_ang = 0, La_ang = 0, Ra_ang = 0, r_calf = 0, l_calf = 0, r_leg = 0, l_leg = 0, angle_speed = 1, counter = 0, turn_ang = 0;
+bool ges = false, D = false, one_side_move = false, jump = false, stop = true, crouch = false, run = false, hold = false, right_hand = true;
 float run_speed = 1.0;
 float crouch_down = 0.0, calf_down = 0.0, leg_down = 0.0; //no use
 int jump_s = 0;
+
+void draw_sword();
+void draw_lance();
 
 /*----------------------------------------------------------
  * Procedure to initialize the working environment.
@@ -110,8 +118,8 @@ void draw_floor()
 
     for (i = -60; i < 60; i++)
         for (j = -60; j < 60; j++) {
-            if ((i + j) % 2 == 0) glColor3f(0.9, 0.9, 0.9);
-            else glColor3f(0.1, 0.1, 0.1);
+            //if ((i + j) % 2 == 0) glColor3f(0.9, 0.9, 0.9);
+            /*else*/ glColor3f(0.3, 0.1, 0.1);
             glBegin(GL_POLYGON);
             glVertex3f(i, 0.0, j);
             glVertex3f(i, 0.0, j + 1);
@@ -150,7 +158,6 @@ void caldown_func()
 void draw_robo()
 {
     glTranslatef(0.0, 5.0, 0.0);
-
 
     //draw body
     glPushMatrix(); //(0, 5, 0)
@@ -275,6 +282,7 @@ void draw_robo()
 
 
     glRotatef(La_ang, 1.0, 0.0, 0.0);
+    glRotatef(gesture, 0.0, 0.0, 1.0);
 
     //draw left upper arm
     glPushMatrix();
@@ -290,6 +298,7 @@ void draw_robo()
     glPopMatrix();
 
     glRotatef(Lfa_ang, 1.0, 0.0, 0.0);
+    glRotatef(ges_fore, 0.0, 0.0, 1.0);
 
     //draw left forearm
     glPushMatrix();
@@ -299,6 +308,13 @@ void draw_robo()
         glRotatef(-60, 1.0, 0.0, 0.0);
     }
     draw_ret();
+
+    if (hold && !right_hand) {
+        glTranslatef(0.75, 0.0, 2.5);
+        if (weapon == SWORD) draw_sword(); 
+        if (weapon == LANCE) draw_lance();
+    }
+
     glPopMatrix();
     glPopMatrix();
     glPopMatrix();
@@ -313,6 +329,7 @@ void draw_robo()
     glutSolidCube(3);
 
     glRotatef(Ra_ang, 1.0, 0.0, 0.0);
+    glRotatef((-1) * gesture, 0.0, 0.0, 1.0);
 
     //draw right upper arm
     glPushMatrix();
@@ -332,6 +349,7 @@ void draw_robo()
 
     //rotate forearm
     glRotatef(Rfa_ang, 1.0, 0.0, 0.0);
+    glRotatef((-1) * ges_fore, 0.0, 1.0, 0.0);
 
     //draw right forearm
     glPushMatrix();
@@ -341,10 +359,107 @@ void draw_robo()
         glRotatef(-60, 1.0, 0.0, 0.0);
     }
     draw_ret();
+
+    if(hold && right_hand) {
+        glTranslatef(0.75, 0.0, 2.5);
+        if (weapon == SWORD) draw_sword();
+        if (weapon == LANCE) draw_lance();
+    }
+    
     glPopMatrix();
     glPopMatrix();
     glPopMatrix();
 }
+
+//draw sword
+void draw_sword() {
+
+    if (!hold || weapon != SWORD) {
+        glRotatef(spin, 0.0, 1.0, 0.0);
+        glScalef(2.0, 2.0, 2.0);
+    }
+
+    glPushMatrix();
+    glRotatef(-90, 1.0, 0.0, 0.0);
+    glColor3f(1.0, 0.0, 0.0);
+    
+    if (cylind == NULL) {               /* allocate a quadric object, if necessary */
+        cylind = gluNewQuadric();
+        gluQuadricDrawStyle(cylind, GLU_FILL);
+        gluQuadricNormals(cylind, GLU_SMOOTH);
+    }
+    gluCylinder(cylind, 0.5, 0.5,      //沿著z軸畫圓柱
+        2,
+        12,
+        3
+    );
+
+    glPushMatrix();
+    glTranslatef(0.0, 0.0, 2.5);
+    glScalef(3.0, 1.0, 1.0);
+    glutWireCube(1);
+    glPopMatrix();
+    
+    glPushMatrix();
+    glTranslatef(0.0, 0.0, 5.5);
+    glScalef(2.0, 0.1, 5.0);
+    glutSolidCube(1);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0.0, 0.0, 8.0);
+    glBegin(GL_TRIANGLES);
+    glVertex3f(-1.0, 0.0, 0.0);
+    glVertex3f(1.0, 0.0, 0.0);
+    glVertex3f(/*sqrt(3) - 1.0*/0.0, 0.0, 1.0);
+    glEnd();
+    glPopMatrix();
+
+    glPopMatrix();
+}
+
+//draw lance
+void draw_lance() {
+
+    if (!hold || weapon != LANCE) {
+        glRotatef(spin, 0.0, 1.0, 0.0);
+        glScalef(1.5, 1.5, 1.5);
+    }
+
+    glPushMatrix();
+    glRotatef(-90, 1.0, 0.0, 0.0);
+    glColor3f(0.5, 0.0, 1.0);
+    gluCylinder(cylind, 0.5, 0.5, 10.0, 12, 3);
+
+    glTranslatef(0.0, 0.0, 10.0);
+
+    glPushMatrix();
+    glColor3f(1.0, 0.5, 0.0);
+    glBegin(GL_TRIANGLES);
+    glVertex3f(-1.0, -1.0, 0.0);
+    glVertex3f(1.0, -1.0, 0.0);
+    glVertex3f(0.0, 0.0, 3.0);
+    glEnd();
+    glBegin(GL_TRIANGLES);
+    glVertex3f(1.0, -1.0, 0.0);
+    glVertex3f(1.0, 1.0, 0.0);
+    glVertex3f(0.0, 0.0, 3.0);
+    glEnd();
+    glBegin(GL_TRIANGLES);
+    glVertex3f(1.0, 1.0, 0.0);
+    glVertex3f(-1.0, 1.0, 0.0);
+    glVertex3f(0.0, 0.0, 3.0);
+    glEnd();
+    glBegin(GL_TRIANGLES);
+    glVertex3f(-1.0, -1.0, 0.0);
+    glVertex3f(-1.0, 1.0, 0.0);
+    glVertex3f(0.0, 0.0, 3.0);
+    glEnd();
+    glPopMatrix();
+
+    glPopMatrix();
+}
+
 
 /*-------------------------------------------------------
  * Display and Idle callback func. This func. draws three
@@ -362,13 +477,49 @@ void display()
     gluLookAt(45.0, 70.0, 55.0, 25.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     /*-------Draw the base of the windmill which is a cube----*/
     //glTranslatef(0.0, 0.0, 0.0);
-    glScalef(view_x, view_y, view_z);
     glTranslatef(25.0, 0.0, 0.0);
+    glScalef(view_x, view_y, view_z);
+    //glTranslatef(25.0, 0.0, 0.0);
     //glRotatef(20, 0.0, 1.0, 0.0);
     //glRotatef(-50, 1.0, 0.0, 0.0);
     glRotatef(ang_x, 1.0, 0.0, 0.0);
     glRotatef(ang_y, 0.0, 1.0, 0.0);
     glRotatef(ang_z, 0.0, 0.0, 1.0);
+
+    glPushMatrix();
+    glTranslatef(-30.0, 0.0, 0.0);
+    draw_sword();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-30.0, 3.0, 10.0);
+    glColor3f(1.0, 1.0, 0.0);
+    glBegin(GL_LINES);
+    glVertex3f(-10.0, 0.0, 0.0);
+    glVertex3f(10.0, 0.0, 0.0);
+    glEnd();
+    glTranslatef(10.0, 0.0, 0.0);
+    glBegin(GL_LINES);
+    glVertex3f(0.0, 0.0, -20.0);
+    glVertex3f(0.0, 0.0, 20.0);
+    glEnd();
+    glTranslatef(0.0, 0.0, -20.0);
+    glBegin(GL_LINES);
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(-20.0, 0.0, 0.0);
+    glEnd();
+    glTranslatef(0.0, 0.0, 40.0);
+    glBegin(GL_LINES);
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(-20.0, 0.0, 0.0);
+    glEnd();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-30.0, 0.0, 20.0);
+    draw_lance();
+    glPopMatrix();
+
     glPushMatrix();
     /*glRotatef(30.0, 0.0, 1.0, 0.0);
     glRotatef(-30.0, 1.0, 0.0, 0.0);*/
@@ -384,6 +535,7 @@ void display()
 
     glTranslatef(test_x, test_y, test_z);
     glPushMatrix();
+    
     glRotatef(turn_ang, 0.0, 1.0, 0.0);
     //glScalef(0.2, 0.2, 0.2);
     draw_robo();
@@ -410,7 +562,6 @@ void my_reshape(int w, int h)
     glLoadIdentity();
     glOrtho(-40.0, 40.0, -40, 40, 0.0, 120.0);
 }
-
 
 /*--------------------------------------------------
  * Keyboard callback func. When a 'q' key is pressed,
@@ -440,6 +591,15 @@ void my_keyboard(unsigned char key, int x, int y)
             crouch = false;
         }
     }
+    if (key == 'p') {
+        hold = false;
+        weapon = NONE;
+    }
+    if (key == 'g') {
+        mode = GESTURE;
+        ges = true;
+    }
+    if (key == 'o')  right_hand = !right_hand;
     if (key == 'w') mode = WALK;
     if (key == 's') mode = STOP;
     if (key == 'r') {
@@ -531,15 +691,55 @@ bool CheckBoundary() {
 
     if (turn_ang == 0) {
         if ((test_z + distance > 23.4 && test_z < 39.6) && (test_x >= -8.6 && test_x <= 13.6))  return false;
+        if ((test_z + distance > -10.0 && test_z < 10.0) && (test_x >= -40.0 && test_x <= -20.0)) {
+            weapon = SWORD;
+            hold = true;
+            return true;
+        }
+        if ((test_z + distance > 10.0 && test_z < 30.0) && (test_x >= -40.0 && test_x <= -20.0)) {
+            weapon = LANCE;
+            hold = true;
+            return true;
+        }
     }
     if (turn_ang == 90 || turn_ang == -270) {
         if ((test_x + distance > -8.6 && test_x < 13.6) && (test_z >= 23.4 && test_z <= 39.6))   return false;
+        if ((test_x + distance > -40.0 && test_x < -20.0) && (test_z >= -10 && test_z <= 10)) {
+            weapon = SWORD;
+            hold = true;
+            return true;
+        }
+        if ((test_x + distance > -40.0 && test_x < -20.0) && (test_z >= 10 && test_z <= 30)) {
+            weapon = LANCE;
+            hold = true;
+            return true;
+        }
     }
     if (turn_ang == 180 || turn_ang == -180) {
         if ((test_z - distance < 39.6 && test_z > 23.4) && (test_x >= -8.6 && test_x <= 13.6)) return false;
+        if ((test_z - distance < 10.0 && test_z > -10.0) && (test_x >= -40.0 && test_x <= -20.0)) {
+            weapon = SWORD;
+            hold = true;
+            return true;
+        }
+        if ((test_z - distance < 30.0 && test_z > 10.0) && (test_x >= -40.0 && test_x <= -20.0)) {
+            weapon = LANCE;
+            hold = true;
+            return true;
+        }
     }
     if (turn_ang == -90 || turn_ang == 270) {
         if ((test_x - distance < 13.6 && test_x > -8.6) && (test_z >= 23.4 && test_z <= 39.6)) return false;
+        if ((test_x - distance < -20.0 && test_x > -40.0) && (test_z >= -10 && test_z <= 10)) {
+            weapon = SWORD;
+            hold = true;
+            return true;
+        }
+        if ((test_x - distance < -20.0 && test_x > -40.0) && (test_z >= 10 && test_z <= 30)) {
+            weapon = LANCE;
+            hold = true;
+            return true;
+        }
     }
 
     return true;
@@ -593,6 +793,7 @@ void Move() {
 
 void movement()
 {
+    spin = (spin + 5) % 360;
     if (mode == STOP) {
         if (!stop) {
             run = false;
@@ -727,6 +928,26 @@ void movement()
         }
         if (!jump && test_y > 0.0) {
             test_y -= 0.1;
+        }
+    }
+    else if (mode == GESTURE) {
+        Stop();
+        if (gesture < 120) {
+            gesture ++;
+        }
+        else if (ges_fore < 90) {
+            ges_fore ++;
+        }
+        else {
+            ges = false;
+        }
+        if (!ges) {
+            if (ges_fore > 0) {
+                ges_fore --;
+            }
+            else if (gesture > 0) {
+                gesture --;
+            }
         }
     }
     glutPostRedisplay();
